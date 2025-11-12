@@ -6,18 +6,26 @@
     <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body class="fade-in">
-    <div id="notification-bar" style="display: none; width: 100%; background-color: #007BFF; color: white; text-align: center; padding: 10px; position: fixed; top: 0; left: 0; z-index: 1000;">
+    <div id="notification-bar" style="width: 100%; background-color: #007BFF; color: white; text-align: center; padding: 10px; position: fixed; top: 0; left: 0; z-index: 1000;">
         <span id="notification-message"></span>
-        <button style="margin-left: 20px; background: none; border: none; color: white; font-weight: bold; cursor: pointer;" onclick="hideNotification()">閉じる</button>
+        <button style="margin-left: 20px; background: none; border: none; color: white; font-weight: bold; cursor: pointer;"
+onclick="hideNotification()">閉じる</button>
     </div>
+
+    <button id="dark-mode-toggle" class="dark-mode-toggle-button">
+        <span class="icon-light">☀️</span>
+        <span class="icon-dark">🌙</span>
+    </button>
+
+
     <div class="container">
-        <button id="dark-mode-toggle" style="margin-top:20px;">ダークモード切り替え</button>
         <h1>OCRスキャナー</h1>
         <form id="upload-form" enctype="multipart/form-data">
             <div id="drop-area">
                 <p>ここにファイルをドラッグ＆ドロップ</p>
                 <p>または</p>
-                <input type="file" name="original_image" accept="image/*,.pdf">
+                <input type="file" 
+name="original_image" accept="image/*,.pdf">
             </div>
             <br><br>
             <select name="lang" id="lang-select">
@@ -25,7 +33,8 @@
                 <option value="eng">英語</option>
             </select><br><br>
 
-            <input type="button" value="ファイルをアップロード" id="upload-button">
+            <input type="button" 
+value="ファイルをアップロード" id="upload-button">
         </form>
         <div id="loading" style="display:none;">
             <div class="spinner"></div>

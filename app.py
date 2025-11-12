@@ -179,7 +179,11 @@ def index():
         s.save()
         logging.debug("Session updated with new results.")
 
-        return template('result', results=results)
+        # ★★★ 変更点 ★★★
+        # templateを返す代わりに、辞書を返す（自動的にJSONになる）
+        logging.debug("Returning JSON response.")
+        return {'results': results}
+        # return template('result', results=results) # <- 変更前
     else:
         logging.debug("Received GET request.")
         return template('index')
