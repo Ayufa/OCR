@@ -32,15 +32,3 @@
 * **Pillow (PIL)**: 画像処理（前処理、描画など）
 * **pdf2image**: PDFを画像に変換
 * **beaker**: セッション管理
-
-## 🚀 セットアップと実行
-
-### 1. 外部依存関係のインストール
-
-このプログラムは、OCRエンジン「**Tesseract**」と、PDF処理ライブラリ「**Poppler**」に依存しています。これらを先にお使いのシステムにインストールしてください。
-
-**macOS (Homebrew)**:
-```bash
-brew install tesseract tesseract-lang poppler
-sudo apt update
-sudo apt install -y tesseract-ocr tesseract-ocr-jpn poppler-utils
