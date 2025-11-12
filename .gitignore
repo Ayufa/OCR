@@ -1,0 +1,26 @@
+# ---- Python キャッシュ ----
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# ---- 仮想環境 ----
+venv/
+.env/
+.env*/ 
+.venv*/ 
+
+# ---- 一時ファイル / ログ ----
+*.log
+*.tmp
+
+# ---- VSCodeなどエディタ設定 ----
+.vscode/
+.idea/
+
+# ---- OS関連 ----
+.DS_Store
+Thumbs.db
+
+# ---- 実行時データ ----
+data/
