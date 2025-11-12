@@ -42,3 +42,5 @@
 **macOS (Homebrew)**:
 ```bash
 brew install tesseract tesseract-lang poppler
+sudo apt update
+sudo apt install -y tesseract-ocr tesseract-ocr-jpn poppler-utils
