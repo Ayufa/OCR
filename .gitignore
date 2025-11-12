@@ -24,3 +24,5 @@ Thumbs.db
 
 # ---- 実行時データ ----
 data/
+
+uploads/
