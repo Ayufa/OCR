@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <title>OCR結果</title>
     <link rel="stylesheet" href="/static/css/style.css">
-    <!-- MathJaxの読み込み -->
-    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
 <body class="fade-in">
     <div class="container">
@@ -26,11 +24,6 @@
             <button onclick="copyText('text-{{result['id']}}')">テキストをコピー</button>
             <a href="/download/{{result['filename']}}.txt">テキストをダウンロード</a>
             <br><br>
-            <!-- LaTeXに変換ボタンと結果表示エリア -->
-            <button onclick="convertToLatex({{result['id']}})">LaTeXに変換</button>
-            <textarea id="latex-{{result['id']}}" rows="10" cols="50" placeholder="LaTeXコードがここに表示されます"></textarea><br>
-            <button onclick="copyText('latex-{{result['id']}}')">LaTeXをコピー</button>
-            <div id="render-{{result['id']}}"></div>
             <hr>
         % end
         <a href="/">戻る</a>
