@@ -80,22 +80,22 @@ document.addEventListener('DOMContentLoaded', function() {
             hideLoading(); 
 
             if (xhr.status === 200) {
-                showNotification('ファイルが正常にアップロードされました！');
+                alert('ファイルが正常にアップロードされました！');
                 try {
                     const data = JSON.parse(xhr.responseText);
                     if (data.results) {
                         displayResults(data.results);
                     } else {
-                        showNotification('受信データが不正です。', 5000);
+                        alert('受信データが不正です。', 5000);
                         uploadForm.style.display = 'block'; 
                     }
                 } catch (e) {
                     console.error("JSONのパースに失敗しました:", e, xhr.responseText);
-                    showNotification('結果の表示に失敗しました。', 5000);
+                    alert('結果の表示に失敗しました。', 5000);
                     uploadForm.style.display = 'block';
                 }
             } else {
-                showNotification('エラーが発生しました。', 5000);
+                alert('エラーが発生しました。', 5000);
                 uploadForm.style.display = 'block';
             }
         };
@@ -103,7 +103,7 @@ document.addEventListener('DOMContentLoaded', function() {
         xhr.onerror = function() {
             hideLoading();
             uploadForm.style.display = 'block';
-            showNotification('通信エラーが発生しました。', 5000);
+            alert('通信エラーが発生しました。', 5000);
         };
 
         xhr.upload.onprogress = function(e) {
@@ -177,7 +177,7 @@ document.addEventListener('DOMContentLoaded', function() {
         textArea.select();
         document.execCommand('copy');
         
-        showNotification('テキストをコピーしました', 2000);
+        alert('テキストをコピーしました', 2000);
     }
     window.copyText = copyText;
 
@@ -192,27 +192,6 @@ document.addEventListener('DOMContentLoaded', function() {
         loadingDiv.style.display = 'none';
     }
 
-    // ★ 前回変更した通知関数
-    function showNotification(message, duration = 3000) {
-        const notificationBar = document.getElementById('notification-bar');
-        const notificationMessage = document.getElementById('notification-message');
-
-        notificationMessage.textContent = message;
-        notificationBar.classList.add('show');
-        notificationBar.classList.remove('hide');
-
-        setTimeout(() => {
-            hideNotification();
-        }, duration);
-    }
-
-    function hideNotification() {
-        const notificationBar = document.getElementById('notification-bar');
-        notificationBar.classList.remove('show');
-        notificationBar.classList.add('hide');
-    }
-
-    window.hideNotification = hideNotification;
 
 // ★ 変更: ダークモードトグルのロジック
     // CSS側でアイコンを切り替えるため、JSはクラスのトグルのみ行う

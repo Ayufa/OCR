@@ -6,11 +6,6 @@
     <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body class="fade-in">
-    <div id="notification-bar" style="width: 100%; background-color: #007BFF; color: white; text-align: center; padding: 10px; position: fixed; top: 0; left: 0; z-index: 1000;">
-        <span id="notification-message"></span>
-        <button style="margin-left: 20px; background: none; border: none; color: white; font-weight: bold; cursor: pointer;"
-onclick="hideNotification()">閉じる</button>
-    </div>
 
     <button id="dark-mode-toggle" class="dark-mode-toggle-button">
         <span class="icon-light">☀️</span>

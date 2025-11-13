@@ -64,24 +64,6 @@ body {
 }
 
 
-/* ★ 変更: ダークモードのトグルボタン */
-body.dark-mode .dark-mode-toggle-button {
-    background-color: rgba(0, 0, 0, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-/* ダークモード時のアイコン表示 (★ 変更: display:none を opacity/transform に変更) */
-body.dark-mode .dark-mode-toggle-button .icon-light {
-    /* 太陽: 隠れている状態 (下側に消える + 透明 + 少し回転) */
-    opacity: 0;
-    transform: translate(-50%, 50%) rotate(-90deg);
-}
-body.dark-mode .dark-mode-toggle-button .icon-dark {
-    /* 月: 見えている状態 (中央 + 不透明) */
-    opacity: 1;
-    transform: translate(-50%, -50%) rotate(0deg);
-}
-
 /* ★★★ コンテナのグラスモーフィズム ★★★ */
 .container {
     max-width: 800px;
@@ -236,7 +218,7 @@ img {
     border-radius: 8px;
     padding: 30px;
     cursor: pointer;
-    background-color: rgba(255, 255, 255, 0.4); /* ★ Glass */
+    background-color: rgba(255, 255, 255, 0.7); /* ★ 変更: コンテナ(0.6)より目立たせる */
     transition: border-color 0.3s ease, background-color 0.3s ease;
 }
 
@@ -292,70 +274,101 @@ img {
     transform: translateY(-2px);
 }
 
-/* ★★★ ダークモード ★★★ */
+/* ★★★ ダークモード (全体的に明るさ・視認性を再調整) ★★★ */
 body.dark-mode {
-    /* ★ 変更: ダークモード用グラデーション */
-    background: linear-gradient(135deg, #232526 0%, #414345 100%);
+    /* ★ 変更: 濃いネイビー/黒から、明るめのスレートグレー系に変更 */
+    background: linear-gradient(135deg, #485563 0%, #29323c 100%);
 }
 
-/* ★ 変更: ダークモードのトグルボタン */
+/* ★ 変更: ダークモードのトグルボタン (新しい背景色に合わせる) */
 body.dark-mode .dark-mode-toggle-button {
-    background-color: rgba(0, 0, 0, 0.4);
+    background-color: rgba(55, 65, 81, 0.6); /* #374151 のrgba */
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
+
+/* ダークモード時のアイコン表示 (アニメーション) */
 body.dark-mode .dark-mode-toggle-button .icon-light {
-    display: none;
+    opacity: 0;
+    transform: translate(-50%, 50%) rotate(-90deg);
 }
 body.dark-mode .dark-mode-toggle-button .icon-dark {
-    display: inline-block;
+    opacity: 1;
+    transform: translate(-50%, -50%) rotate(0deg);
 }
 
-/* ★ 変更: ダークモードのコンテナ */
+/* ★ 変更: ダークモードのコンテナ (明るめのグレーに) */
 body.dark-mode .container {
-    background-color: rgba(30, 30, 30, 0.5); /* ★ Glass */
-    border: 1px solid rgba(255, 255, 255, 0.1); /* ★ Glass */
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3); /* ★ 影 */
+    background-color: rgba(75, 85, 99, 0.55); /* #4b5563 のrgba */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);
 }
 
+/* ★ 変更: テキスト色を柔らかく */
 body.dark-mode h1,
 body.dark-mode h2 {
-    color: #ffffff;
+    color: #f3f4f6; /* ほぼ白 */
 }
+/* ★ 変更: リンク色を視認しやすい明るい青に */
 body.dark-mode a {
-    color: #66aaff;
+    color: #7dd3fc; /* 明るい空色 */
 }
 body.dark-mode a:hover {
-    color: #88bbff;
+    color: #bae6fd;
 }
 
-/* ★ 変更: ダークモードのドロップエリア */
+/* ★ 変更: ドロップエリア */
 body.dark-mode #drop-area {
-    border-color: rgba(100, 180, 255, 0.5);
-    background-color: rgba(0, 0, 0, 0.2);
+    border-color: rgba(125, 211, 252, 0.5); /* リンク色に合わせる */
+    background-color: rgba(85, 95, 109, 0.5); /* ★ 変更: コンテナより少し明るく */
 }
 body.dark-mode #drop-area.highlight {
-    border-color: #66aaff;
-    background-color: rgba(100, 180, 255, 0.1);
+    border-color: #7dd3fc;
+    background-color: rgba(125, 211, 252, 0.15);
 }
+/* ★ 変更: ドロップエリア内の <p> タグのテキスト色 */
 body.dark-mode #drop-area p {
-    color: #bbb;
+    color: #d1d5db; /* gray-300 */
 }
 
-/* ★ 変更: ダークモードのフォーム要素 */
+/* ★★★【重要】ここがファイル入力の修正です ★★★ */
+/* ★ 追加: ファイル入力「選択されていません」のテキスト色対応 */
+body.dark-mode input[type="file"] {
+    /* ブラウザにダークモードであることを伝え、デフォルトUIの色を変更させる */
+    color-scheme: dark;
+    /* テキスト色を明示的に指定 */
+    color: #d1d5db;
+}
+/* ★ 追加: Webkit系(Chrome/Safari)のファイル選択ボタンのスタイル */
+body.dark-mode input[type="file"]::-webkit-file-upload-button {
+    background-color: #374151; /* フォーム背景と合わせる */
+    color: #e5e7eb;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    padding: 4px 8px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+body.dark-mode input[type="file"]::-webkit-file-upload-button:hover {
+    background-color: #4b5563;
+}
+
+
+/* ★ 変更: フォーム要素 (textarea, select) */
 body.dark-mode select,
 body.dark-mode textarea {
-    background-color: rgba(0, 0, 0, 0.3);
-    color: #e0e0e0;
+    background-color: rgba(55, 65, 81, 0.4); /* #374151 */
+    color: #e5e7eb; /* gray-200 */
     border: 1px solid rgba(255, 255, 255, 0.15);
 }
 body.dark-mode select {
-    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2366aaff%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-13%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2013l128%20128c3.6%203.6%207.8%205.4%2013%205.4s9.4-1.8%2013-5.4l128-128c3.6-3.6%205.4-7.8%205.4-13%200-5-1.8-9.2-5.4-12.8z%22%2F%3E%3C%2Fsvg%3E');
+    /* ★ 変更: 矢印アイコンの色をリンクと合わせる */
+    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%237dd3fc%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-13%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2013l128%20128c3.6%203.6%207.8%205.4%2013%205.4s9.4-1.8%2013-5.4l128-128c3.6-3.6%205.4-7.8%205.4-13%200-5-1.8-9.2-5.4-12.8z%22%2F%3E%3C%2Fsvg%3E');
 }
 
-/* ★ 変更: ダークモードのカード */
+/* ★ 変更: ダークモードのカード (明るめのグレーに) */
 body.dark-mode .result-card {
-    background: rgba(42, 42, 42, 0.6); /* ★ Glass */
-    border: 1px solid rgba(255, 255, 255, 0.15); /* ★ Glass */
+    background: rgba(80, 90, 105, 0.65); /* コンテナより少し不透明に */
+    border: 1px solid rgba(255, 255, 255, 0.15);
     box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 body.dark-mode .result-card:hover {
@@ -364,24 +377,9 @@ body.dark-mode .result-card:hover {
 
 /* ★ 変更: ダークモードのプログレスバー */
 body.dark-mode #progress-bar::-webkit-progress-bar {
-    background-color: rgba(0, 0, 0, 0.3);
+    background-color: rgba(55, 65, 81, 0.3); /* #374151 */
 }
 
-/* 通知バー (アニメーションは継承) */
-#notification-bar {
-    font-size: 16px;
-    font-family: 'Helvetica Neue', Arial, sans-serif;
-    transition: transform 0.4s ease-in-out, opacity 0.4s ease-in-out;
-    transform: translateY(-100%);
-    opacity: 0;
-    /* ★ 変更: 通知バーもGlassに */
-    background-color: rgba(0, 123, 255, 0.8) !important; /* JSのstyleを上書き */
-    backdrop-filter: blur(5px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
-body.dark-mode #notification-bar {
-    background-color: rgba(0, 123, 255, 0.7) !important;
-}
 
 #notification-bar.show {
     transform: translateY(0);
