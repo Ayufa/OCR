@@ -2,4 +2,6 @@ bottle
 Pillow
 pdf2image
 beaker
-pytesseract
+yomitoku
+opencv-python
+torch

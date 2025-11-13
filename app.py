@@ -1,12 +1,19 @@
 from bottle import Bottle, run, request, template, static_file, TEMPLATE_PATH, BaseRequest
-from PIL import Image, ImageOps, ImageDraw
+from PIL import Image, ImageOps
 import os
-import sys  # sys.platform のために残します
+import sys
 from pdf2image import convert_from_path
 from beaker.middleware import SessionMiddleware
 import logging
-import pytesseract  # Tesseract OCR のインポート
-from pytesseract import Output
+
+# --- YomiToku 関連のインポート ---
+import cv2  # YomiTokuの可視化結果を保存するために使用
+from yomitoku import DocumentAnalyzer
+
+# --- pytesseract 関連のインポート (削除) ---
+# import pytesseract
+# from pytesseract import Output
+# from PIL import ImageDraw
 
 
 # メモリ制限を増やす（デフォルトは100KB）
@@ -23,7 +30,7 @@ session_opts = {
 
 # ログの設定
 logging.basicConfig(
-    level=logging.DEBUG,  # ログレベルを DEBUG に設定
+    level=logging.DEBUG,
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 
@@ -39,13 +46,27 @@ uploads_dir = os.path.join(current_dir, 'uploads')
 
 # Popplerのパスを設定（必要に応じて変更）
 if sys.platform.startswith('win'):
-    poppler_path = r'C:\path\to\poppler\bin'  # ここをPopplerのbinフォルダのパスに変更
+    poppler_path = r'C:\path\to\poppler\bin'
 else:
-    poppler_path = None  # LinuxやmacOSではNone
+    poppler_path = None
 
-# Tesseractのパスを設定（Windowsの場合）
-if sys.platform.startswith('win'):
-    pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'  # Tesseractのインストールパスに変更
+# --- Tesseractのパス設定 (削除) ---
+# if sys.platform.startswith('win'):
+#     pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+
+
+# --- ★★★ 変更点: YomiToku Analyzer の初期化 ★★★ ---
+# アプリケーション起動時に一度だけモデルをロードします。
+# デフォルトは 'cpu' に設定しています。GPUがある場合は 'cuda' に変更してください。
+logging.debug("Initializing YomiToku DocumentAnalyzer...")
+try:
+    analyzer = DocumentAnalyzer(visualize=True, device="cpu")
+    logging.debug("YomiToku DocumentAnalyzer initialized successfully on CPU.")
+except Exception as e:
+    logging.error(f"Failed to initialize YomiToku Analyzer: {e}")
+    logging.error("YomiTokuのセットアップが正しく行われているか確認してください。")
+    analyzer = None
+
 
 # 静的ファイルのルーティング
 @app.route('/static/<filepath:path>')
@@ -68,22 +89,23 @@ def download(filename):
 # メインルート
 @app.route('/', method=['GET', 'POST'])
 def index():
+    if not analyzer:
+        return "OCRエンジン(YomiToku)の初期化に失敗しました。ログを確認してください。"
 
-    # セッションの取得
     s = request.environ.get('beaker.session')
     logging.debug("Session retrieved.")
 
     if request.method == 'POST':
         logging.debug("Received POST request.")
         
-        lang = request.forms.get('lang') or 'jpn'
+        # --- ★ 変更点: lang は YomiToku では不要 ---
+        # YomiTokuは日本語と英語に自動対応しています
+        # lang = request.forms.get('lang') or 'jpn' 
         results = []
-        logging.debug(f"Language selected: {lang}")
+        # logging.debug(f"Language selected: {lang}")
 
-        # 通常のOCR処理
         uploads = request.files.getall('files') or []
         if not uploads:
-            # ファイルが選択されていない場合、original_imageを使用
             original_image = request.files.get('original_image')
             if original_image and original_image.file:
                 uploads = [original_image]
@@ -96,114 +118,93 @@ def index():
                 logging.debug(f"Saving uploaded file: {filename} to {file_path}")
                 upload.save(file_path, overwrite=True)
 
-                # 結果用のディクショナリ
                 result = {'id': idx, 'filename': filename, 'text': ''}
 
                 try:
                     if filename.lower().endswith('.pdf'):
                         logging.debug(f"Processing PDF file: {filename}")
-                        # PDFを画像に変換
                         pages = convert_from_path(file_path, poppler_path=poppler_path)
                         text_pages = []
+                        annotated_images_paths = [] # ページごとの注釈付き画像パス
+
                         for i, page in enumerate(pages):
-                            logging.debug(f"Processing page {i+1} of PDF.")
-                            # 画像の前処理
-                            image = preprocess_image(page)
-                            # Tesseract OCRを使用
-                            data = pytesseract.image_to_data(image, lang=lang, output_type=Output.DICT)
-                            text = ' '.join(data['text'])
-                            text_pages.append(text)
-                        result['text'] = '\n\n'.join(text_pages)
+                            logging.debug(f"Processing page {i+1} of PDF with YomiToku.")
+                            
+                            # --- ★★★ 変更点: YomiToku でOCR実行 ★★★ ---
+                            # page は PIL Image オブジェクト
+                            yomi_results, ocr_vis, layout_vis = analyzer(page)
+                            
+                            # テキスト結果 (Markdown形式) を取得
+                            text_pages.append(yomi_results.to_markdown())
+
+                            # 注釈付き画像を保存
+                            annotated_image_name = f"{os.path.splitext(filename)[0]}_page_{i+1}_annotated.png"
+                            annotated_image_path = os.path.join(uploads_dir, annotated_image_name)
+                            cv2.imwrite(annotated_image_path, ocr_vis) # cv2でnumpy配列を保存
+                            annotated_images_paths.append(annotated_image_name)
+
+                        result['text'] = '\n\n--- (New Page) ---\n\n'.join(text_pages)
+                        if annotated_images_paths:
+                            # 簡略化のため、最初のページの画像のみフロントに渡す
+                            result['annotated_image'] = annotated_images_paths[0]
+                    
                     else:
-                        logging.debug(f"Processing image file: {filename}")
-                        # 画像ファイルの場合
+                        logging.debug(f"Processing image file: {filename} with YomiToku.")
                         image = Image.open(file_path)
-                        # EXIFデータに基づいて画像を回転補正
-                        image = ImageOps.exif_transpose(image)
-                        # 画像の前処理
-                        processed_image = preprocess_image(image)
-                        # Tesseract OCRを使用してデータ取得
-                        data = pytesseract.image_to_data(processed_image, lang=lang, output_type=Output.DICT)
-                        # テキストを取得
-                        result['text'] = ' '.join(data['text'])
+                        image = ImageOps.exif_transpose(image) # EXIF回転補正は継続
+                        
+                        # --- ★★★ 変更点: YomiToku でOCR実行 ★★★ ---
+                        # pytesseractの前処理 (preprocess_image) は不要
+                        yomi_results, ocr_vis, layout_vis = analyzer(image)
 
-                        # バウンディングボックスを画像に描画（ここに色分け処理を追加）
-                        draw = ImageDraw.Draw(image)
-                        n_boxes = len(data['level'])
+                        # テキスト結果 (Markdown形式) を取得
+                        result['text'] = yomi_results.to_markdown()
 
-                        # 信頼度に応じた色を返す関数
-                        def get_color(conf):
-                            c = max(conf, 0)  # confが未満の場合扱い
-                            if c < 50:
-                                return 'red'       # 信頼度低
-                            elif c < 80:
-                                return 'orange'    # 中程度
-                            elif c < 90:
-                                return 'yellow'    # やや高め
-                            else:
-                                return 'green'     # 高信頼度
+                        # --- ★★★ 変更点: バウンディングボックス描画 (不要) ★★★ ---
+                        # YomiToku が 'ocr_vis' として可視化画像を生成するため、
+                        # PILでの描画ロジックはすべて不要になります。
 
-                        for i2 in range(n_boxes):
-                            (x, y, w, h) = (data['left'][i2], data['top'][i2], data['width'][i2], data['height'][i2])
-                            try:
-                                conf = int(data['conf'][i2])
-                            except ValueError:
-                                conf = 0
-                            if conf > 0:
-                                color = get_color(conf)
-                                draw.rectangle([(x, y), (x + w, y + h)], outline=color, width=2)
-                                # 信頼度スコアを同色で表示
-                                draw.text((x, y - 10), f'{conf}%', fill=color)
+                        # YomiToku が生成した可視化画像を保存
+                        annotated_image_name = f"{os.path.splitext(filename)[0]}_annotated.png"
+                        annotated_image_path = os.path.join(uploads_dir, annotated_image_name)
+                        cv2.imwrite(annotated_image_path, ocr_vis)
+                        result['annotated_image'] = annotated_image_name
 
-                        # 画像を保存
-                        annotated_image_path = f"{file_path}_annotated.png"
-                        image.save(annotated_image_path)
-                        result['annotated_image'] = os.path.basename(annotated_image_path)
 
-                    # テキストをファイルに保存
+                    # テキストをファイルに保存 (元のロジックを継続)
                     text_file = f'{file_path}.txt'
                     logging.debug(f"Saving OCR result to {text_file}")
                     with open(text_file, 'w', encoding='utf-8') as f:
                         f.write(result['text'])
 
                     results.append(result)
-                    logging.info(f"OCR processing completed for file: {filename}")
+                    logging.info(f"YomiToku processing completed for file: {filename}")
 
                 except Exception as e:
                     logging.error(f"Error processing file {filename}: {e}")
                     result['text'] = f"Error processing file {filename}: {e}"
                     results.append(result)
 
-        # セッションに結果を保存
         s['results'] = results
         s.save()
         logging.debug("Session updated with new results.")
 
-        # ★★★ 変更点 ★★★
-        # templateを返す代わりに、辞書を返す（自動的にJSONになる）
+        # JSONレスポンス (変更なし)
         logging.debug("Returning JSON response.")
         return {'results': results}
-        # return template('result', results=results) # <- 変更前
     else:
         logging.debug("Received GET request.")
         return template('index')
 
-# 画像の前処理関数
-def preprocess_image(image):
-    logging.debug("Starting image preprocessing.")
-    # グレースケール化
-    image = image.convert('L')
-    logging.debug("Converted image to grayscale.")
-    # 二値化
-    threshold = 140
-    image = image.point(lambda x: 0 if x < threshold else 255)
-    logging.debug("Applied binary threshold to image.")
-    return image
+# --- ★★★ 変更点: preprocess_image 関数 (不要) ★★★ ---
+# YomiToku側で最適な前処理が行われるため、
+# アプリケーション側でのグレースケール化や二値化は不要です。
+# def preprocess_image(image): ... (削除)
 
-# 履歴表示のルート
+
+# 履歴表示のルート (変更なし)
 @app.route('/history')
 def history():
-    # セッションの取得
     s = request.environ.get('beaker.session')
     results = s.get('results', [])
     logging.debug(f"Displaying history with {len(results)} items.")
@@ -218,7 +219,5 @@ if __name__ == '__main__':
         os.makedirs(session_opts['session.data_dir'])
         logging.debug(f"Created session data directory: {session_opts['session.data_dir']}")
     
-    
-    # アプリケーションをセッションミドルウェアでラップ
     app_with_sessions = SessionMiddleware(app, session_opts)
     run(app=app_with_sessions, host='localhost', port=8080, debug=True, reloader=False)
