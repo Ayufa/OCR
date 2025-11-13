@@ -14,7 +14,7 @@ body {
     background-attachment: fixed; /* 背景を固定 */
 }
 
-/* ★★★ 追加: ダークモードトグルボタン ★★★ */
+/* ★★★ 追加: ダークモードトグルボタン (アニメーション強化) ★★★ */
 .dark-mode-toggle-button {
     position: fixed; /* 画面右上に固定 */
     top: 20px;
@@ -28,24 +28,58 @@ body {
     backdrop-filter: blur(5px); /* ★ Glass */
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     z-index: 1001;
-    overflow: hidden; /* アイコン切り替えのため */
+    overflow: hidden; /* ★ 重要: アイコン切り替えのため */
     transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    
+    /* ★ 変更: position: fixed のまま子要素の基準点とする */
 }
 .dark-mode-toggle-button:hover {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
+
+/* ★ 変更: アイコンのスタイリングを大幅に変更 */
 .dark-mode-toggle-button .icon-light,
 .dark-mode-toggle-button .icon-dark {
     font-size: 24px;
-    transition: transform 0.3s ease;
+    
+    /* ★ 変更: アイコンを重ねて中央に配置 */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    
+    /* ★ 変更: transition を transform と opacity に適用 (イージングを調整) */
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
 }
 
-/* ライトモード時のアイコン表示 */
+/* ライトモード時のアイコン表示 (★ 変更: display:none を opacity/transform に変更) */
 .dark-mode-toggle-button .icon-dark {
-    display: none;
+    /* 月: 隠れている状態 (上側で見えない + 透明 + 少し回転) */
+    opacity: 0;
+    transform: translate(-50%, -150%) rotate(90deg); 
 }
 .dark-mode-toggle-button .icon-light {
-    display: inline-block;
+    /* 太陽: 見えている状態 (中央 + 不透明) */
+    opacity: 1;
+    transform: translate(-50%, -50%) rotate(0deg);
+}
+
+
+/* ★ 変更: ダークモードのトグルボタン */
+body.dark-mode .dark-mode-toggle-button {
+    background-color: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ダークモード時のアイコン表示 (★ 変更: display:none を opacity/transform に変更) */
+body.dark-mode .dark-mode-toggle-button .icon-light {
+    /* 太陽: 隠れている状態 (下側に消える + 透明 + 少し回転) */
+    opacity: 0;
+    transform: translate(-50%, 50%) rotate(-90deg);
+}
+body.dark-mode .dark-mode-toggle-button .icon-dark {
+    /* 月: 見えている状態 (中央 + 不透明) */
+    opacity: 1;
+    transform: translate(-50%, -50%) rotate(0deg);
 }
 
 /* ★★★ コンテナのグラスモーフィズム ★★★ */
