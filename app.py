@@ -160,10 +160,6 @@ def index():
                         # テキスト結果 (Markdown形式) を取得
                         result['text'] = yomi_results.to_markdown()
 
-                        # --- ★★★ 変更点: バウンディングボックス描画 (不要) ★★★ ---
-                        # YomiToku が 'ocr_vis' として可視化画像を生成するため、
-                        # PILでの描画ロジックはすべて不要になります。
-
                         # YomiToku が生成した可視化画像を保存
                         annotated_image_name = f"{os.path.splitext(filename)[0]}_annotated.png"
                         annotated_image_path = os.path.join(uploads_dir, annotated_image_name)
