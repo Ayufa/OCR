@@ -4,6 +4,8 @@ from bottle import static_file, request, template
 from config import static_dir, uploads_dir
 from services.ocr_service import process_file
 
+import json
+
 def setup_routes(app):
     # 静的ファイルのルーティング
     @app.route('/static/<filepath:path>')
@@ -76,4 +78,38 @@ def setup_routes(app):
         s = request.environ.get('beaker.session')
         results = s.get('results', [])
         logging.debug(f"Displaying history with {len(results)} items.")
-        return template('result', results=results)
+        return template('result', results=results, import_json=json)
+
+    # テキスト更新用のルート
+    @app.route('/update_text', method='POST')
+    def update_text():
+        logging.debug("Received text update request.")
+        try:
+            data = request.json
+            filename = data.get('filename')
+            new_text = data.get('text')
+            
+            if not filename or new_text is None:
+                return {'status': 'error', 'message': 'Missing filename or text'}
+
+            file_path = os.path.join(uploads_dir, filename)
+            text_file = f'{file_path}.txt'
+            
+            # テキストファイルを更新
+            with open(text_file, 'w', encoding='utf-8') as f:
+                f.write(new_text)
+            
+            # セッション内のデータも更新 (オプション: 履歴表示用)
+            s = request.environ.get('beaker.session')
+            results = s.get('results', [])
+            for res in results:
+                if res['filename'] == filename:
+                    res['text'] = new_text
+                    break
+            s.save()
+
+            logging.debug(f"Updated text for file: {filename}")
+            return {'status': 'success'}
+        except Exception as e:
+            logging.error(f"Error updating text: {e}")
+            return {'status': 'error', 'message': str(e)}

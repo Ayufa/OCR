@@ -1,391 +1,300 @@
-html {
-    scroll-behavior: smooth;
-}
-
+/* 全体のスタイル */
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
-    margin: 0;
-    padding: 40px 0; /* ★ 変更: コンテナが端につかないように */
-    line-height: 1.6;
-    transition: background-color 0.3s ease, color 0.3s ease;
-
-    /* ★★★ 追加: グラスモーフィズム用の背景 ★★★ */
-    background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
-    background-attachment: fixed; /* 背景を固定 */
-}
-
-/* ★★★ 追加: ダークモードトグルボタン (アニメーション強化) ★★★ */
-.dark-mode-toggle-button {
-    position: fixed; /* 画面右上に固定 */
-    top: 20px;
-    right: 20px;
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    border: none;
-    cursor: pointer;
-    background-color: rgba(255, 255, 255, 0.5); /* ★ Glass */
-    backdrop-filter: blur(5px); /* ★ Glass */
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    z-index: 1001;
-    overflow: hidden; /* ★ 重要: アイコン切り替えのため */
-    transition: background-color 0.3s ease, box-shadow 0.3s ease;
-    
-    /* ★ 変更: position: fixed のまま子要素の基準点とする */
-}
-.dark-mode-toggle-button:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-/* ★ 変更: アイコンのスタイリングを大幅に変更 */
-.dark-mode-toggle-button .icon-light,
-.dark-mode-toggle-button .icon-dark {
-    font-size: 24px;
-    
-    /* ★ 変更: アイコンを重ねて中央に配置 */
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    
-    /* ★ 変更: transition を transform と opacity に適用 (イージングを調整) */
-    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
-}
-
-/* ライトモード時のアイコン表示 (★ 変更: display:none を opacity/transform に変更) */
-.dark-mode-toggle-button .icon-dark {
-    /* 月: 隠れている状態 (上側で見えない + 透明 + 少し回転) */
-    opacity: 0;
-    transform: translate(-50%, -150%) rotate(90deg); 
-}
-.dark-mode-toggle-button .icon-light {
-    /* 太陽: 見えている状態 (中央 + 不透明) */
-    opacity: 1;
-    transform: translate(-50%, -50%) rotate(0deg);
-}
-
-
-/* ★★★ コンテナのグラスモーフィズム ★★★ */
-.container {
-    max-width: 800px;
-    margin: 0 auto; /* ★ 変更: 上下マージンをbodyのpaddingで制御 */
-    padding: 40px;
-    text-align: center;
-    border-radius: 16px; /* ★ 変更: 角丸を強めに */
-    
-    /* ★★★ Glass Effect ★★★ */
-    background-color: rgba(255, 255, 255, 0.6); /* ★ 半透明の白 */
-    backdrop-filter: blur(10px); /* ★ ぼかし（すりガラス） */
-    border: 1px solid rgba(255, 255, 255, 0.3); /* ★ 境界線 */
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1); /* ★ 影 */
-    
-    transition: background-color 0.3s ease, border 0.3s ease, box-shadow 0.3s ease;
-}
-
-h1 {
-    margin-bottom: 30px;
-    color: #1a202c; /* ★ 変更: 濃いめのテキストカラー */
-    font-weight: 700;
-}
-
-h2 {
-    color: #2d3748; /* ★ 変更 */
-    font-weight: 600;
-}
-
-/* ★ 変更: ボタンのデザイン */
-input[type="submit"], input[type="button"], button {
-    padding: 12px 24px;
-    background-color: #007BFF;
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 16px;
-    font-weight: 600;
-    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
-}
-
-input[type="submit"]:hover, input[type="button"]:hover, button:hover {
-    background-color: #0056b3;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
-}
-
-input[type="submit"]:active, input[type="button"]:active, button:active {
-    transform: translateY(1px);
-    box-shadow: none;
-    transition: transform 0.1s ease;
-}
-
-input[type="submit"]:disabled, input[type="button"]:disabled, button:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
-}
-
-
-/* ★ 変更: テキストエリアとセレクトボックス */
-pre, textarea, select {
-    text-align: left;
-    background-color: rgba(255, 255, 255, 0.7); /* ★ Glass */
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    background-color: #f4f4f9;
     color: #333;
-    padding: 16px; /* ★ 変更 */
-    border: 1px solid rgba(255, 255, 255, 0.5); /* ★ Glass */
+    margin: 0;
+    padding: 0;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.container {
+    max-width: 1200px;
+    /* 幅を広げる */
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
-    overflow-x: auto;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+h1,
+h2 {
+    text-align: center;
+    color: #444;
+}
+
+/* ドラッグ＆ドロップエリア */
+#drop-area {
+    border: 2px dashed #ccc;
+    border-radius: 20px;
     width: 100%;
+    padding: 40px 20px;
+    text-align: center;
+    transition: background-color 0.3s;
+    cursor: pointer;
     box-sizing: border-box;
     margin-bottom: 20px;
-    font-size: 16px;
-    line-height: 1.5;
-}
-textarea:focus, select:focus {
-    outline: none;
-    border: 1px solid #007BFF;
-    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
-}
-
-a {
-    display: inline-block;
-    margin-top: 20px;
-    color: #0056b3; /* ★ 変更: 濃いめ */
-    text-decoration: none;
-    font-size: 16px;
-    margin-right: 10px;
-    font-weight: 600; /* ★ 変更: 太め */
-    transition: color 0.3s ease, transform 0.2s ease;
-}
-a:hover {
-    color: #003d80;
-    transform: translateY(-2px);
-}
-
-hr { display: none; }
-
-select {
-    width: 100%;
-    max-width: 300px;
-    padding-right: 30px; /* ★ 変更 */
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007BFF%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-13%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2013l128%20128c3.6%203.6%207.8%205.4%2013%205.4s9.4-1.8%2013-5.4l128-128c3.6-3.6%205.4-7.8%205.4-13%200-5-1.8-9.2-5.4-12.8z%22%2F%3E%3C%2Fsvg%3E');
-    background-repeat: no-repeat;
-    background-position: right 15px center;
-    background-size: 10px 10px;
-}
-
-
-img {
-    margin: 20px 0;
-    max-width: 100%;
-    height: auto;
-    border-radius: 8px;
-}
-
-/* ローディングスピナー */
-.spinner {
-    margin: 0 auto 20px auto;
-    width: 50px;
-    height: 50px;
-    border: 6px solid rgba(255, 255, 255, 0.3); /* ★ 変更 */
-    border-top: 6px solid #007BFF;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-/* フェードイン効果 */
-.fade-in {
-    opacity: 0;
-    animation: fadeInAnimation ease 1s;
-    animation-fill-mode: forwards;
-}
-
-@keyframes fadeInAnimation {
-    0% { opacity: 0; transform: translateY(10px); }
-    100% { opacity: 1; transform: translateY(0); }
-}
-
-/* ★ 変更: ドロップエリア */
-#drop-area {
-    border: 2px dashed rgba(0, 123, 255, 0.5); /* ★ 変更 */
-    border-radius: 8px;
-    padding: 30px;
-    cursor: pointer;
-    background-color: rgba(255, 255, 255, 0.7); /* ★ 変更: コンテナ(0.6)より目立たせる */
-    transition: border-color 0.3s ease, background-color 0.3s ease;
 }
 
 #drop-area.highlight {
-    border-color: #007BFF;
-    border-style: solid;
-    background-color: rgba(0, 123, 255, 0.1);
+    border-color: purple;
+    background-color: #f0f0f0;
 }
 
-#drop-area p {
-    margin: 0;
-    font-size: 16px;
-    color: #333; /* ★ 変更 */
-}
-
-#progress-bar {
-    width: 100%;
-    height: 20px;
-    margin-top: 10px;
-    border-radius: 10px;
-    overflow: hidden;
-    appearance: none;
+/* ボタンのスタイル */
+button,
+input[type="button"],
+input[type="submit"],
+.btn {
+    background-color: #6200ea;
+    color: white;
+    padding: 10px 20px;
     border: none;
-}
-#progress-bar::-webkit-progress-bar {
-    background-color: rgba(255, 255, 255, 0.5);
-}
-#progress-bar::-webkit-progress-value {
-    background-color: #007BFF;
-    transition: width 0.3s ease;
-}
-
-/* ★ 変更: 結果カード */
-#results-container {
-    margin-top: 30px;
-    text-align: left;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+    text-decoration: none;
+    display: inline-block;
+    margin: 5px;
 }
 
-.result-card {
-    /* ★★★ Glass Effect ★★★ */
-    background: rgba(255, 255, 255, 0.7); /* ★ Glass (コンテナより濃く) */
-    border: 1px solid rgba(255, 255, 255, 0.4); /* ★ Glass */
-    backdrop-filter: blur(5px); /* ★ Glass (弱め) */
-    border-radius: 12px;
-    padding: 20px 30px;
-    margin-top: 20px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    transition: box-shadow 0.3s ease, transform 0.3s ease;
+button:hover,
+input[type="button"]:hover,
+input[type="submit"]:hover,
+.btn:hover {
+    background-color: #3700b3;
 }
 
-.result-card:hover {
-    box-shadow: 0 6px 16px rgba(0,0,0,0.08);
-    transform: translateY(-2px);
+/* ダークモードトグル */
+.dark-mode-toggle-button {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 24px;
+    color: #333;
+    z-index: 1001;
 }
 
-/* ★★★ ダークモード (全体的に明るさ・視認性を再調整) ★★★ */
 body.dark-mode {
-    /* ★ 変更: 濃いネイビー/黒から、明るめのスレートグレー系に変更 */
-    background: linear-gradient(135deg, #485563 0%, #29323c 100%);
+    background-color: #121212;
+    color: #e0e0e0;
 }
 
-/* ★ 変更: ダークモードのトグルボタン (新しい背景色に合わせる) */
-body.dark-mode .dark-mode-toggle-button {
-    background-color: rgba(55, 65, 81, 0.6); /* #374151 のrgba */
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-/* ダークモード時のアイコン表示 (アニメーション) */
-body.dark-mode .dark-mode-toggle-button .icon-light {
-    opacity: 0;
-    transform: translate(-50%, 50%) rotate(-90deg);
-}
-body.dark-mode .dark-mode-toggle-button .icon-dark {
-    opacity: 1;
-    transform: translate(-50%, -50%) rotate(0deg);
-}
-
-/* ★ 変更: ダークモードのコンテナ (明るめのグレーに) */
 body.dark-mode .container {
-    background-color: rgba(75, 85, 99, 0.55); /* #4b5563 のrgba */
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);
+    background-color: #1e1e1e;
+    color: #e0e0e0;
 }
 
-/* ★ 変更: テキスト色を柔らかく */
 body.dark-mode h1,
 body.dark-mode h2 {
-    color: #f3f4f6; /* ほぼ白 */
-}
-/* ★ 変更: リンク色を視認しやすい明るい青に */
-body.dark-mode a {
-    color: #7dd3fc; /* 明るい空色 */
-}
-body.dark-mode a:hover {
-    color: #bae6fd;
+    color: #e0e0e0;
 }
 
-/* ★ 変更: ドロップエリア */
 body.dark-mode #drop-area {
-    border-color: rgba(125, 211, 252, 0.5); /* リンク色に合わせる */
-    background-color: rgba(85, 95, 109, 0.5); /* ★ 変更: コンテナより少し明るく */
+    border-color: #555;
 }
+
 body.dark-mode #drop-area.highlight {
-    border-color: #7dd3fc;
-    background-color: rgba(125, 211, 252, 0.15);
-}
-/* ★ 変更: ドロップエリア内の <p> タグのテキスト色 */
-body.dark-mode #drop-area p {
-    color: #d1d5db; /* gray-300 */
+    background-color: #333;
 }
 
-/* ★★★【重要】ここがファイル入力の修正です ★★★ */
-/* ★ 追加: ファイル入力「選択されていません」のテキスト色対応 */
-body.dark-mode input[type="file"] {
-    /* ブラウザにダークモードであることを伝え、デフォルトUIの色を変更させる */
-    color-scheme: dark;
-    /* テキスト色を明示的に指定 */
-    color: #d1d5db;
-}
-/* ★ 追加: Webkit系(Chrome/Safari)のファイル選択ボタンのスタイル */
-body.dark-mode input[type="file"]::-webkit-file-upload-button {
-    background-color: #374151; /* フォーム背景と合わせる */
-    color: #e5e7eb;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 4px;
-    padding: 4px 8px;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-}
-body.dark-mode input[type="file"]::-webkit-file-upload-button:hover {
-    background-color: #4b5563;
+/* OCR結果カード */
+.result-card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 30px;
+    background-color: #fafafa;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
-
-/* ★ 変更: フォーム要素 (textarea, select) */
-body.dark-mode select,
-body.dark-mode textarea {
-    background-color: rgba(55, 65, 81, 0.4); /* #374151 */
-    color: #e5e7eb; /* gray-200 */
-    border: 1px solid rgba(255, 255, 255, 0.15);
-}
-body.dark-mode select {
-    /* ★ 変更: 矢印アイコンの色をリンクと合わせる */
-    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%237dd3fc%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-13%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2013l128%20128c3.6%203.6%207.8%205.4%2013%205.4s9.4-1.8%2013-5.4l128-128c3.6-3.6%205.4-7.8%205.4-13%200-5-1.8-9.2-5.4-12.8z%22%2F%3E%3C%2Fsvg%3E');
-}
-
-/* ★ 変更: ダークモードのカード (明るめのグレーに) */
 body.dark-mode .result-card {
-    background: rgba(80, 90, 105, 0.65); /* コンテナより少し不透明に */
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-}
-body.dark-mode .result-card:hover {
-    box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+    background-color: #2c2c2c;
+    border-color: #444;
 }
 
-/* ★ 変更: ダークモードのプログレスバー */
-body.dark-mode #progress-bar::-webkit-progress-bar {
-    background-color: rgba(55, 65, 81, 0.3); /* #374151 */
+.result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    flex-wrap: wrap;
 }
 
-
-#notification-bar.show {
-    transform: translateY(0);
-    opacity: 1;
+body.dark-mode .result-header {
+    border-bottom-color: #444;
 }
-#notification-bar.hide {
-    transform: translateY(-100%);
-    opacity: 0;
+
+.result-header h2 {
+    margin: 0;
+    font-size: 1.5em;
+}
+
+.result-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.result-content {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.result-image,
+.result-text {
+    flex: 1;
+    min-width: 300px;
+}
+
+.result-image img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+}
+
+body.dark-mode .result-image img {
+    border-color: #555;
+}
+
+.ocr-text-container {
+    line-height: 1.8;
+    font-size: 16px;
+    white-space: pre-wrap;
+    background-color: #fff;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    height: 100%;
+    /* 画像と高さを合わせる */
+    box-sizing: border-box;
+    overflow-y: auto;
+    max-height: 80vh;
+    /* 長すぎる場合はスクロール */
+}
+
+body.dark-mode .ocr-text-container {
+    background-color: #333;
+    border-color: #555;
+}
+
+.ocr-word {
+    cursor: pointer;
+    padding: 2px 1px;
+    border-radius: 3px;
+    transition: background-color 0.2s;
+    display: inline-block;
+}
+
+.ocr-word:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+    outline: 1px solid #999;
+}
+
+body.dark-mode .ocr-word:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.conf-low {
+    color: #d32f2f;
+    font-weight: bold;
+    border-bottom: 1px dotted #d32f2f;
+}
+
+.conf-mid {
+    color: #f57c00;
+    border-bottom: 1px dotted #f57c00;
+}
+
+.conf-high {
+    color: inherit;
+}
+
+body.dark-mode .conf-low {
+    color: #ff6659;
+    border-bottom-color: #ff6659;
+}
+
+body.dark-mode .conf-mid {
+    color: #ffb74d;
+    border-bottom-color: #ffb74d;
+}
+
+/* 隠しテキストエリア */
+.raw-text-area {
+    display: none;
+}
+
+/* モーダルのスタイル */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(2px);
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 10% auto;
+    padding: 30px;
+    border: 1px solid #888;
+    width: 90%;
+    max-width: 500px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    position: relative;
+}
+
+.close-button {
+    color: #aaa;
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close-button:hover,
+.close-button:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.edit-input {
+    width: 100%;
+    padding: 12px;
+    font-size: 18px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-sizing: border-box;
+    margin-top: 10px;
+}
+
+body.dark-mode .modal-content {
+    background-color: #2c2c2c;
+    color: #e0e0e0;
+    border-color: #444;
+}
+
+body.dark-mode .edit-input {
+    background-color: #333;
+    color: #fff;
+    border-color: #555;
 }

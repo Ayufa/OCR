@@ -2,12 +2,12 @@ import os
 import logging
 import pytesseract
 from pytesseract import Output
-from PIL import Image, ImageOps, ImageDraw, ImageFile  # ★ 追加: ImageFileをインポート
+from PIL import Image, ImageOps, ImageDraw, ImageFile
 from pdf2image import convert_from_path
 from config import poppler_path, uploads_dir
 from utils.image_utils import preprocess_image
 
-# ★ 追加: トランケートされた（途切れた）画像の読み込みを許可する設定
+# トランケートされた（途切れた）画像の読み込みを許可する設定
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 def get_color(conf):
@@ -51,30 +51,46 @@ def process_file(filename, lang='jpn'):
             # 画像ファイルの場合
             image = Image.open(file_path)
             
-            # ★ 変更なし: EXIFデータに基づいて画像を回転補正
+            # EXIFデータに基づいて画像を回転補正
             image = ImageOps.exif_transpose(image)
             # 画像の前処理
             processed_image = preprocess_image(image)
+            
             # Tesseract OCRを使用してデータ取得
             data = pytesseract.image_to_data(processed_image, lang=lang, output_type=Output.DICT)
-            # テキストを取得
-            result['text'] = ' '.join(data['text'])
-
+            
+            # テキストを取得 (単語データのリストを作成)
+            word_data = []
+            n_boxes = len(data['level'])
+            
             # バウンディングボックスを画像に描画
             draw = ImageDraw.Draw(image)
-            n_boxes = len(data['level'])
-
-            for i2 in range(n_boxes):
-                (x, y, w, h) = (data['left'][i2], data['top'][i2], data['width'][i2], data['height'][i2])
+            
+            for i in range(n_boxes):
+                text = data['text'][i]
+                (x, y, w, h) = (data['left'][i], data['top'][i], data['width'][i], data['height'][i])
+                
                 try:
-                    conf = int(data['conf'][i2])
+                    conf = int(data['conf'][i])
                 except ValueError:
                     conf = 0
+                
+                if text.strip():  # 空白文字以外を対象
+                    word_data.append({
+                        'text': text,
+                        'conf': conf,
+                        'id': i,
+                        'box': (x, y, w, h)
+                    })
+
                 if conf > 0:
                     color = get_color(conf)
                     draw.rectangle([(x, y), (x + w, y + h)], outline=color, width=2)
                     # 信頼度スコアを同色で表示
                     draw.text((x, y - 10), f'{conf}%', fill=color)
+
+            result['text'] = ' '.join([w['text'] for w in word_data])
+            result['word_data'] = word_data
 
             # 画像を保存
             annotated_image_path = f"{file_path}_annotated.png"

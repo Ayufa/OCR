@@ -1,5 +1,5 @@
 ﻿// main.js
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const fileInput = document.querySelector('input[name="original_image"]');
     const langSelect = document.getElementById('lang-select');
     const uploadButton = document.getElementById('upload-button');
@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const progressBar = document.getElementById('progress-bar');
     const progressText = document.getElementById('progress-text');
     const darkModeToggle = document.getElementById('dark-mode-toggle');
-    
+
     const uploadForm = document.getElementById('upload-form');
     const loadingDiv = document.getElementById('loading');
     const container = document.querySelector('.container');
@@ -30,11 +30,10 @@ document.addEventListener('DOMContentLoaded', function() {
         dropArea.addEventListener(eventName, () => dropArea.classList.remove('highlight'), false);
     });
 
-    dropArea.addEventListener('drop', function(e) {
+    dropArea.addEventListener('drop', function (e) {
         const dt = e.dataTransfer;
         if (dt && dt.files && dt.files.length > 0) {
             fileInput.files = dt.files;
-            // ★ 追加: ファイルがドロップされたらファイル名を表示（任意）
             if (fileInput.files.length > 0) {
                 dropArea.querySelector('p').textContent = `${fileInput.files[0].name} が選択されました`;
             }
@@ -42,9 +41,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    fileInput.addEventListener('change', function() {
-        // ★ 追加: ファイルが選択されたらファイル名を表示（任意）
-         if (fileInput.files.length > 0) {
+    fileInput.addEventListener('change', function () {
+        if (fileInput.files.length > 0) {
             dropArea.querySelector('p').textContent = `${fileInput.files[0].name} が選択されました`;
         }
         updateButtonState();
@@ -52,7 +50,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     updateButtonState();
 
-    uploadButton.addEventListener('click', function() {
+    uploadButton.addEventListener('click', function () {
         if (!(fileInput.files && fileInput.files[0])) {
             alert('画像ファイルを選択してください。');
             return;
@@ -75,9 +73,9 @@ document.addEventListener('DOMContentLoaded', function() {
     function sendFormData(formData) {
         const xhr = new XMLHttpRequest();
         xhr.open('POST', '/');
-        
-        xhr.onload = function() {
-            hideLoading(); 
+
+        xhr.onload = function () {
+            hideLoading();
 
             if (xhr.status === 200) {
                 alert('ファイルが正常にアップロードされました！');
@@ -87,7 +85,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         displayResults(data.results);
                     } else {
                         alert('受信データが不正です。', 5000);
-                        uploadForm.style.display = 'block'; 
+                        uploadForm.style.display = 'block';
                     }
                 } catch (e) {
                     console.error("JSONのパースに失敗しました:", e, xhr.responseText);
@@ -100,13 +98,13 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         };
 
-        xhr.onerror = function() {
+        xhr.onerror = function () {
             hideLoading();
             uploadForm.style.display = 'block';
             alert('通信エラーが発生しました。', 5000);
         };
 
-        xhr.upload.onprogress = function(e) {
+        xhr.upload.onprogress = function (e) {
             if (e.lengthComputable) {
                 const percentComplete = Math.round((e.loaded / e.total) * 100);
                 progressBar.value = percentComplete;
@@ -117,7 +115,6 @@ document.addEventListener('DOMContentLoaded', function() {
         xhr.send(formData);
     }
 
-    // ★★★ 変更: displayResults 関数 ★★★
     function displayResults(results) {
         const oldResults = document.getElementById('results-container');
         if (oldResults) {
@@ -127,47 +124,243 @@ document.addEventListener('DOMContentLoaded', function() {
         const resultsContainer = document.createElement('div');
         resultsContainer.id = 'results-container';
 
-        // ★ 変更: フォームとローディングを非表示（結果表示のため）
-        uploadForm.style.display = 'none';
-        loadingDiv.style.display = 'none';
+        let resultsHTML = '';
 
-        let resultsHTML = '<a href="/">新しくスキャンする</a><h1>OCR結果</h1>';
-        
         results.forEach(result => {
-            const textId = `text-${result.id}`;
-            
-            let imageHTML = '';
-            if (result.annotated_image) {
-                imageHTML = `<img src="/uploads/${result.annotated_image}" alt="${result.filename}" style="max-width:100%;">`;
-            } else if (result.filename.match(/\.(png|jpg|jpeg|gif|bmp)$/i)) {
-                imageHTML = `<img src="/uploads/${result.filename}" alt="${result.filename}" style="max-width:100%;">`;
+            const containerId = `container-${result.id}`;
+            const imgContainerId = `img-container-${result.id}`;
+            const imageSrc = result.annotated_image ? `/uploads/${result.annotated_image}` : `/uploads/${result.filename}`;
+
+            let textHTML = '';
+            if (result.word_data && result.word_data.length > 0) {
+                textHTML = `<div class="ocr-text-container" id="${containerId}" data-filename="${result.filename}">`;
+                result.word_data.forEach(word => {
+                    let colorClass = 'conf-high';
+                    if (word.conf < 50) colorClass = 'conf-low';
+                    else if (word.conf < 80) colorClass = 'conf-mid';
+                    textHTML += `<span class="ocr-word ${colorClass}" data-id="${word.id}" data-conf="${word.conf}">${word.text}</span>`;
+                });
+                textHTML += '</div>';
+            } else {
+                textHTML = `<div class="ocr-text-container" id="${containerId}" data-filename="${result.filename}">${result.text.replace(/\n/g, '<br>')}</div>`;
             }
 
-            const escapedText = document.createElement('textarea');
-            escapedText.textContent = result.text;
-
             resultsHTML += `
-                <div class="result-card">
+            <div class="result-card">
+                <div class="result-header">
                     <h2>${result.filename}</h2>
-                    ${imageHTML}
-                    <textarea id="${textId}" rows="10">${escapedText.innerHTML}</textarea><br>
-                    <button onclick="copyText('${textId}')">テキストをコピー</button>
-                    <a href="/download/${result.filename}.txt">テキストをダウンロード</a>
+                    <div class="result-actions">
+                        <button onclick="copyText('text-${result.id}')" class="btn">テキストをコピー</button>
+                        <a href="/download/${result.filename}.txt" class="btn">テキストをダウンロード</a>
+                    </div>
                 </div>
+                <div class="result-content">
+                    <div class="result-image">
+                        <div class="image-overlay-container" id="${imgContainerId}" style="position: relative; display: inline-block;">
+                             <img src="${imageSrc}" alt="${result.filename}" style="max-width:100%; display: block;" class="ocr-result-image" data-id="${result.id}">
+                        </div>
+                    </div>
+                    <div class="result-text">
+                        ${textHTML}
+                    </div>
+                </div>
+                <textarea id="text-${result.id}" class="raw-text-area" rows="10">${result.text}</textarea>
+            </div>
             `;
         });
 
-        // ★ 変更: 戻るボタンをカードの外、最後に配置
-        resultsHTML += '<a href="/">新しくスキャンする</a>';
-        
+        // 編集用モーダルを追加
+        resultsHTML += `
+        <div id="edit-modal" class="modal" style="display:none;">
+            <div class="modal-content">
+                <span class="close-button">&times;</span>
+                <h3>テキストの修正</h3>
+                <input type="text" id="edit-input" class="edit-input">
+                <br><br>
+                <button id="save-edit-button">保存</button>
+            </div>
+        </div>
+        <div style="text-align:center; margin-top:20px;"><a href="/" class="btn">戻る</a></div>
+        `;
+
         resultsContainer.innerHTML = resultsHTML;
         container.appendChild(resultsContainer);
 
-        // ★ 追加: 結果表示後にコンテナが長くなるため、コンテナの先頭にスクロール
-        container.scrollIntoView({ behavior: 'smooth' });
+        // 画像の読み込みを待ってオーバーレイを設定
+        results.forEach(result => {
+            if (result.word_data) {
+                const img = document.querySelector(`.ocr-result-image[data-id="${result.id}"]`);
+                if (img) {
+                    if (img.complete) {
+                        setupOverlays(img, result.word_data, `container-${result.id}`);
+                    } else {
+                        img.onload = function () {
+                            setupOverlays(img, result.word_data, `container-${result.id}`);
+                        };
+                    }
+                }
+            }
+        });
+
+        setupEditListeners();
     }
 
-    // ★ result.js からコピーした関数
+    // オーバーレイを設定する関数
+    function setupOverlays(imgElement, wordData, containerId) {
+        const container = imgElement.parentElement;
+        // 既存のオーバーレイを削除
+        container.querySelectorAll('.word-overlay').forEach(el => el.remove());
+
+        const naturalWidth = imgElement.naturalWidth;
+        const naturalHeight = imgElement.naturalHeight;
+        const displayWidth = imgElement.width;
+        const displayHeight = imgElement.height;
+
+        const scaleX = displayWidth / naturalWidth;
+        const scaleY = displayHeight / naturalHeight;
+
+        wordData.forEach(word => {
+            if (word.box) {
+                const [x, y, w, h] = word.box;
+                const overlay = document.createElement('div');
+                overlay.className = 'word-overlay';
+                overlay.style.position = 'absolute';
+                overlay.style.left = `${x * scaleX}px`;
+                overlay.style.top = `${y * scaleY}px`;
+                overlay.style.width = `${w * scaleX}px`;
+                overlay.style.height = `${h * scaleY}px`;
+                overlay.style.cursor = 'pointer';
+                overlay.style.backgroundColor = 'rgba(0, 0, 0, 0)'; // 透明
+
+                // クリックイベント
+                overlay.addEventListener('click', function (e) {
+                    e.stopPropagation(); // 親要素への伝播を防ぐ
+                    const textContainer = document.getElementById(containerId);
+                    const span = textContainer.querySelector(`.ocr-word[data-id="${word.id}"]`);
+                    if (span) {
+                        span.click(); // 対応するテキストスパンのクリックイベントを発火
+                    }
+                });
+
+                // ホバー効果
+                overlay.addEventListener('mouseenter', function () {
+                    overlay.style.backgroundColor = 'rgba(255, 255, 0, 0.2)';
+                });
+                overlay.addEventListener('mouseleave', function () {
+                    overlay.style.backgroundColor = 'rgba(0, 0, 0, 0)';
+                });
+
+                container.appendChild(overlay);
+            }
+        });
+
+        // ウィンドウリサイズ時に再計算するためのリスナーを追加（簡易実装）
+        window.addEventListener('resize', () => {
+            // リサイズ時の再計算ロジックはここに追加可能
+        });
+    };
+
+    function setupEditListeners() {
+        const modal = document.getElementById('edit-modal');
+        const closeButton = document.querySelector('.close-button');
+        const editInput = document.getElementById('edit-input');
+        const saveButton = document.getElementById('save-edit-button');
+        let currentSpan = null;
+        let currentContainerId = null;
+
+        document.querySelectorAll('.ocr-word').forEach(span => {
+            span.addEventListener('click', function () {
+                currentSpan = this;
+                currentContainerId = this.closest('.ocr-text-container').id;
+                editInput.value = this.innerText;
+                modal.style.display = 'block';
+                editInput.focus();
+            });
+        });
+
+        if (closeButton) {
+            closeButton.addEventListener('click', function () {
+                modal.style.display = 'none';
+            });
+        }
+
+        window.addEventListener('click', function (event) {
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        });
+
+        if (saveButton) {
+            saveButton.addEventListener('click', function () {
+                if (currentSpan && editInput.value) {
+                    const newText = editInput.value;
+                    currentSpan.innerText = newText;
+
+                    currentSpan.classList.remove('conf-low', 'conf-mid');
+                    currentSpan.classList.add('conf-high');
+
+                    updateHiddenTextarea(currentContainerId);
+                    saveToServer(currentContainerId);
+
+                    modal.style.display = 'none';
+                }
+            });
+        }
+
+        if (editInput) {
+            editInput.addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') {
+                    saveButton.click();
+                }
+            });
+        }
+    }
+
+    function updateHiddenTextarea(containerId) {
+        const container = document.getElementById(containerId);
+        const resultId = containerId.split('-')[1];
+        const textarea = document.getElementById(`text-${resultId}`);
+
+        let fullText = '';
+        container.querySelectorAll('.ocr-word').forEach(span => {
+            fullText += span.innerText + ' ';
+        });
+
+        textarea.value = fullText.trim();
+    }
+
+    function saveToServer(containerId) {
+        const container = document.getElementById(containerId);
+        const filename = container.dataset.filename;
+        const resultId = containerId.split('-')[1];
+        const textarea = document.getElementById(`text-${resultId}`);
+        const text = textarea.value;
+
+        fetch('/update_text', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                filename: filename,
+                text: text
+            }),
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    console.log('Text updated successfully');
+                } else {
+                    console.error('Error updating text:', data.message);
+                    alert('保存に失敗しました: ' + data.message);
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                alert('通信エラーが発生しました');
+            });
+    }
+
     function copyText(id) {
         const textArea = document.getElementById(id);
         if (!textArea) {
@@ -176,14 +369,14 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         textArea.select();
         document.execCommand('copy');
-        
+
         alert('テキストをコピーしました', 2000);
     }
     window.copyText = copyText;
 
     function showLoading() {
-        uploadForm.style.display = 'none'; 
-        loadingDiv.style.display = 'block'; 
+        uploadForm.style.display = 'none';
+        loadingDiv.style.display = 'block';
         progressBar.value = 0;
         progressText.innerText = '処理中です。お待ちください...';
     }
@@ -192,11 +385,8 @@ document.addEventListener('DOMContentLoaded', function() {
         loadingDiv.style.display = 'none';
     }
 
-
-// ★ 変更: ダークモードトグルのロジック
-    // CSS側でアイコンを切り替えるため、JSはクラスのトグルのみ行う
     if (darkModeToggle) {
-        darkModeToggle.addEventListener('click', function() {
+        darkModeToggle.addEventListener('click', function () {
             document.body.classList.toggle('dark-mode');
         });
     }
