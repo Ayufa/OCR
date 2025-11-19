@@ -2,10 +2,13 @@ import os
 import logging
 import pytesseract
 from pytesseract import Output
-from PIL import Image, ImageOps, ImageDraw
+from PIL import Image, ImageOps, ImageDraw, ImageFile  # ★ 追加: ImageFileをインポート
 from pdf2image import convert_from_path
 from config import poppler_path, uploads_dir
 from utils.image_utils import preprocess_image
+
+# ★ 追加: トランケートされた（途切れた）画像の読み込みを許可する設定
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 def get_color(conf):
     """
@@ -47,7 +50,8 @@ def process_file(filename, lang='jpn'):
             logging.debug(f"Processing image file: {filename}")
             # 画像ファイルの場合
             image = Image.open(file_path)
-            # EXIFデータに基づいて画像を回転補正
+            
+            # ★ 変更なし: EXIFデータに基づいて画像を回転補正
             image = ImageOps.exif_transpose(image)
             # 画像の前処理
             processed_image = preprocess_image(image)
