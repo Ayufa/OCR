@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <title>OCRスキャナー</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body class="fade-in">
@@ -19,8 +22,7 @@
             <div id="drop-area">
                 <p>ここにファイルをドラッグ＆ドロップ</p>
                 <p>または</p>
-                <input type="file" 
-name="original_image" accept="image/*,.pdf">
+                <input type="file" name="original_image" accept="image/*,.pdf">
             </div>
             <br><br>
             <select name="lang" id="lang-select">
@@ -28,8 +30,7 @@ name="original_image" accept="image/*,.pdf">
                 <option value="eng">英語</option>
             </select><br><br>
 
-            <input type="button" 
-value="ファイルをアップロード" id="upload-button">
+            <input type="button" value="ファイルをアップロード" id="upload-button">
         </form>
         <div id="loading" style="display:none;">
             <div class="spinner"></div>
