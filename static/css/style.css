@@ -1,18 +1,29 @@
 /* 全体のスタイル */
 :root {
-    --primary-color: #4F46E5; /* Indigo 600 */
-    --primary-hover: #4338ca; /* Indigo 700 */
-    --background-light: #F3F4F6; /* Gray 100 */
+    --primary-color: #4F46E5;
+    /* Indigo 600 */
+    --primary-hover: #4338ca;
+    /* Indigo 700 */
+    --background-light: #F3F4F6;
+    /* Gray 100 */
     --surface-light: #FFFFFF;
-    --text-light: #1F2937; /* Gray 800 */
-    --text-muted-light: #6B7280; /* Gray 500 */
-    --border-light: #E5E7EB; /* Gray 200 */
+    --text-light: #1F2937;
+    /* Gray 800 */
+    --text-muted-light: #6B7280;
+    /* Gray 500 */
+    --border-light: #E5E7EB;
+    /* Gray 200 */
 
-    --background-dark: #0F172A; /* Slate 900 */
-    --surface-dark: #1E293B; /* Slate 800 */
-    --text-dark: #F8FAFC; /* Slate 50 */
-    --text-muted-dark: #94A3B8; /* Slate 400 */
-    --border-dark: #334155; /* Slate 700 */
+    --background-dark: #0F172A;
+    /* Slate 900 */
+    --surface-dark: #1E293B;
+    /* Slate 800 */
+    --text-dark: #F8FAFC;
+    /* Slate 50 */
+    --text-muted-dark: #94A3B8;
+    /* Slate 400 */
+    --border-dark: #334155;
+    /* Slate 700 */
 
     --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
     --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
@@ -39,7 +50,9 @@ body {
     transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-h1, h2, h3 {
+h1,
+h2,
+h3 {
     color: var(--text-light);
     font-weight: 700;
     margin-top: 0;
@@ -60,18 +73,21 @@ h1 {
     text-align: center;
     transition: all 0.2s ease;
     cursor: pointer;
-    background-color: #F9FAFB; /* Gray 50 */
+    background-color: #F9FAFB;
+    /* Gray 50 */
     margin-bottom: 1.5rem;
 }
 
 #drop-area:hover {
     border-color: var(--primary-color);
-    background-color: #EEF2FF; /* Indigo 50 */
+    background-color: #EEF2FF;
+    /* Indigo 50 */
 }
 
 #drop-area.highlight {
     border-color: var(--primary-color);
-    background-color: #E0E7FF; /* Indigo 100 */
+    background-color: #E0E7FF;
+    /* Indigo 100 */
 }
 
 #drop-area p {
@@ -176,13 +192,15 @@ body.dark-mode h3 {
 }
 
 body.dark-mode #drop-area {
-    background-color: #1E293B; /* Slate 800 */
+    background-color: #1E293B;
+    /* Slate 800 */
     border-color: var(--border-dark);
 }
 
 body.dark-mode #drop-area:hover {
     border-color: var(--primary-color);
-    background-color: #1e1b4b; /* Indigo 950 */
+    background-color: #1e1b4b;
+    /* Indigo 950 */
 }
 
 body.dark-mode #drop-area p {
@@ -303,7 +321,8 @@ body.dark-mode .ocr-text-container {
 }
 
 .ocr-word:hover {
-    background-color: rgba(79, 70, 229, 0.1); /* Indigo 100 equivalent opacity */
+    background-color: rgba(79, 70, 229, 0.1);
+    /* Indigo 100 equivalent opacity */
     outline: 1px solid var(--primary-color);
 }
 
@@ -312,12 +331,14 @@ body.dark-mode .ocr-word:hover {
 }
 
 .conf-low {
-    color: #EF4444; /* Red 500 */
+    color: #EF4444;
+    /* Red 500 */
     border-bottom: 2px dotted #EF4444;
 }
 
 .conf-mid {
-    color: #F59E0B; /* Amber 500 */
+    color: #F59E0B;
+    /* Amber 500 */
     border-bottom: 2px dotted #F59E0B;
 }
 
@@ -417,6 +438,34 @@ body.dark-mode .edit-input {
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* 双方向ハイライト: テキストホバー時に画像上の枠を強調 */
+.word-overlay.active {
+    background-color: rgba(255, 255, 0, 0.4) !important;
+    border: 2px solid var(--primary-color);
+    z-index: 10;
+}
+
+/* 双方向ハイライト: 画像上の枠ホバー時にテキストを強調 */
+.ocr-word.active {
+    background-color: rgba(79, 70, 229, 0.2);
+    outline: 1px solid var(--primary-color);
+}
+
+/* 修正箇所の可視化: 修正されたテキストのスタイル  */
+.ocr-word.corrected {
+    color: #059669;
+    /* Green 600 */
+    background-color: #D1FAE5;
+    /* Green 100 */
+    border-bottom: 2px solid #059669;
+    font-weight: 600;
 }

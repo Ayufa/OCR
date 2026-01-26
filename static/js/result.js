@@ -87,22 +87,24 @@ function setupEditListeners() {
         }
     });
 
-    if (saveButton) {
-        saveButton.addEventListener('click', function () {
-            if (currentSpan && editInput.value) {
-                const newText = editInput.value;
-                currentSpan.innerText = newText;
+    // static/js/main.js (および result.js) 内の saveButton.addEventListener 部分を修正
 
-                currentSpan.classList.remove('conf-low', 'conf-mid');
-                currentSpan.classList.add('conf-high');
+    saveButton.addEventListener('click', function () {
+        if (currentSpan && editInput.value) {
+            const newText = editInput.value;
+            currentSpan.innerText = newText;
 
-                updateHiddenTextarea(currentContainerId);
-                saveToServer(currentContainerId);
+            // 信頼度クラスを削除
+            currentSpan.classList.remove('conf-low', 'conf-mid', 'conf-high');
+            // 修正済みクラスを追加 (論文課題 )
+            currentSpan.classList.add('corrected');
 
-                modal.style.display = 'none';
-            }
-        });
-    }
+            updateHiddenTextarea(currentContainerId);
+            saveToServer(currentContainerId);
+
+            modal.style.display = 'none';
+        }
+    });
 
     if (editInput) {
         editInput.addEventListener('keypress', function (e) {

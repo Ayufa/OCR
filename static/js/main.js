@@ -205,7 +205,8 @@ document.addEventListener('DOMContentLoaded', function () {
         setupEditListeners();
     }
 
-    // オーバーレイを設定する関数
+    // static/js/main.js (および result.js) 内の setupOverlays 関数を置き換え
+
     function setupOverlays(imgElement, wordData, containerId) {
         const container = imgElement.parentElement;
         // 既存のオーバーレイを削除
@@ -224,6 +225,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 const [x, y, w, h] = word.box;
                 const overlay = document.createElement('div');
                 overlay.className = 'word-overlay';
+                // IDによる紐付けのため data-id を追加
+                overlay.dataset.id = word.id;
+
                 overlay.style.position = 'absolute';
                 overlay.style.left = `${x * scaleX}px`;
                 overlay.style.top = `${y * scaleY}px`;
@@ -231,34 +235,62 @@ document.addEventListener('DOMContentLoaded', function () {
                 overlay.style.height = `${h * scaleY}px`;
                 overlay.style.cursor = 'pointer';
                 overlay.style.backgroundColor = 'rgba(0, 0, 0, 0)'; // 透明
+                overlay.style.transition = 'background-color 0.2s, border 0.2s'; // アニメーション追加
 
                 // クリックイベント
                 overlay.addEventListener('click', function (e) {
-                    e.stopPropagation(); // 親要素への伝播を防ぐ
+                    e.stopPropagation();
                     const textContainer = document.getElementById(containerId);
                     const span = textContainer.querySelector(`.ocr-word[data-id="${word.id}"]`);
                     if (span) {
-                        span.click(); // 対応するテキストスパンのクリックイベントを発火
+                        span.click();
                     }
                 });
 
-                // ホバー効果
+                // 画像オーバーレイ -> テキストのハイライト (既存機能の強化)
                 overlay.addEventListener('mouseenter', function () {
                     overlay.style.backgroundColor = 'rgba(255, 255, 0, 0.2)';
+                    // 対応するテキストもハイライト
+                    const textContainer = document.getElementById(containerId);
+                    const span = textContainer.querySelector(`.ocr-word[data-id="${word.id}"]`);
+                    if (span) span.classList.add('active');
                 });
                 overlay.addEventListener('mouseleave', function () {
                     overlay.style.backgroundColor = 'rgba(0, 0, 0, 0)';
+                    // テキストのハイライト解除
+                    const textContainer = document.getElementById(containerId);
+                    const span = textContainer.querySelector(`.ocr-word[data-id="${word.id}"]`);
+                    if (span) span.classList.remove('active');
                 });
 
                 container.appendChild(overlay);
             }
         });
 
-        // ウィンドウリサイズ時に再計算するためのリスナーを追加（簡易実装）
-        window.addEventListener('resize', () => {
-            // リサイズ時の再計算ロジックはここに追加可能
-        });
+        // テキスト -> 画像オーバーレイのハイライト機能 (新規追加: 論文課題 )
+        setupTextHoverEffects(containerId, container);
     };
+
+    // 新規追加関数: テキストホバー時のイベント設定
+    function setupTextHoverEffects(textContainerId, imageOverlayContainer) {
+        const textContainer = document.getElementById(textContainerId);
+        if (!textContainer) return;
+
+        const spans = textContainer.querySelectorAll('.ocr-word');
+        spans.forEach(span => {
+            span.addEventListener('mouseenter', function () {
+                const id = this.dataset.id;
+                const overlay = imageOverlayContainer.querySelector(`.word-overlay[data-id="${id}"]`);
+                if (overlay) overlay.classList.add('active');
+            });
+
+            span.addEventListener('mouseleave', function () {
+                const id = this.dataset.id;
+                const overlay = imageOverlayContainer.querySelector(`.word-overlay[data-id="${id}"]`);
+                if (overlay) overlay.classList.remove('active');
+            });
+        });
+    }
 
     function setupEditListeners() {
         const modal = document.getElementById('edit-modal');
@@ -290,22 +322,24 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
 
-        if (saveButton) {
-            saveButton.addEventListener('click', function () {
-                if (currentSpan && editInput.value) {
-                    const newText = editInput.value;
-                    currentSpan.innerText = newText;
+        // static/js/main.js (および result.js) 内の saveButton.addEventListener 部分を修正
 
-                    currentSpan.classList.remove('conf-low', 'conf-mid');
-                    currentSpan.classList.add('conf-high');
+        saveButton.addEventListener('click', function () {
+            if (currentSpan && editInput.value) {
+                const newText = editInput.value;
+                currentSpan.innerText = newText;
 
-                    updateHiddenTextarea(currentContainerId);
-                    saveToServer(currentContainerId);
+                // 信頼度クラスを削除
+                currentSpan.classList.remove('conf-low', 'conf-mid', 'conf-high');
+                // 修正済みクラスを追加 (論文課題 )
+                currentSpan.classList.add('corrected');
 
-                    modal.style.display = 'none';
-                }
-            });
-        }
+                updateHiddenTextarea(currentContainerId);
+                saveToServer(currentContainerId);
+
+                modal.style.display = 'none';
+            }
+        });
 
         if (editInput) {
             editInput.addEventListener('keypress', function (e) {
